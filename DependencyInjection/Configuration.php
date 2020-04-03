@@ -11,13 +11,12 @@
 
 namespace FOS\UserBundle\DependencyInjection;
 
-use FOS\UserBundle\Form\Type;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * This class contains the configuration information for the bundle.
+ * This class contains the configuration information for the bundle
  *
  * This information is solely responsible for how the different configuration
  * sections are normalized, and merged.
@@ -27,19 +26,16 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
     /**
-     * {@inheritdoc}
+     * Generates the configuration tree.
+     *
+     * @return TreeBuilder
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder('fos_user');
+        $treeBuilder = new TreeBuilder();
+        $rootNode = $treeBuilder->root('fos_user');
 
-        if (method_exists($treeBuilder, 'getRootNode')) {
-            $rootNode = $treeBuilder->getRootNode();
-        } else {
-            $rootNode = $treeBuilder->root('fos_user');
-        }
-
-        $supportedDrivers = ['orm', 'mongodb', 'couchdb', 'custom'];
+        $supportedDrivers = array('orm', 'mongodb', 'couchdb', 'propel', 'custom');
 
         $rootNode
             ->children()
@@ -55,29 +51,23 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('user_class')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('firewall_name')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('model_manager_name')->defaultNull()->end()
-                ->booleanNode('use_authentication_listener')->defaultTrue()->end()
                 ->booleanNode('use_listener')->defaultTrue()->end()
-                ->booleanNode('use_flash_notifications')->defaultTrue()->end()
                 ->booleanNode('use_username_form_type')->defaultTrue()->end()
                 ->arrayNode('from_email')
-                    ->isRequired()
+                    ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('address')->isRequired()->cannotBeEmpty()->end()
-                        ->scalarNode('sender_name')->isRequired()->cannotBeEmpty()->end()
+                        ->scalarNode('address')->defaultValue('webmaster@example.com')->cannotBeEmpty()->end()
+                        ->scalarNode('sender_name')->defaultValue('webmaster')->cannotBeEmpty()->end()
                     ->end()
                 ->end()
             ->end()
             // Using the custom driver requires changing the manager services
             ->validate()
-                ->ifTrue(function ($v) {
-                    return 'custom' === $v['db_driver'] && 'fos_user.user_manager.default' === $v['service']['user_manager'];
-                })
+                ->ifTrue(function($v){return 'custom' === $v['db_driver'] && 'fos_user.user_manager.default' === $v['service']['user_manager'];})
                 ->thenInvalid('You need to specify your own user manager service when using the "custom" driver.')
             ->end()
             ->validate()
-                ->ifTrue(function ($v) {
-                    return 'custom' === $v['db_driver'] && !empty($v['group']) && 'fos_user.group_manager.default' === $v['group']['group_manager'];
-                })
+                ->ifTrue(function($v){return 'custom' === $v['db_driver'] && !empty($v['group']) && 'fos_user.group_manager.default' === $v['group']['group_manager'];})
                 ->thenInvalid('You need to specify your own group manager service when using the "custom" driver.')
             ->end();
 
@@ -86,6 +76,7 @@ class Configuration implements ConfigurationInterface
         $this->addRegistrationSection($rootNode);
         $this->addResettingSection($rootNode);
         $this->addServiceSection($rootNode);
+        $this->addTemplateSection($rootNode);
         $this->addGroupSection($rootNode);
 
         return $treeBuilder;
@@ -101,13 +92,13 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->arrayNode('form')
                             ->addDefaultsIfNotSet()
-                            ->fixXmlConfig('validation_group')
                             ->children()
-                                ->scalarNode('type')->defaultValue(Type\ProfileFormType::class)->end()
+                                ->scalarNode('type')->defaultValue('fos_user_profile')->end()
+                                ->scalarNode('handler')->defaultValue('fos_user.profile.form.handler.default')->end()
                                 ->scalarNode('name')->defaultValue('fos_user_profile_form')->end()
                                 ->arrayNode('validation_groups')
                                     ->prototype('scalar')->end()
-                                    ->defaultValue(['Profile', 'Default'])
+                                    ->defaultValue(array('Profile', 'Default'))
                                 ->end()
                             ->end()
                         ->end()
@@ -128,7 +119,7 @@ class Configuration implements ConfigurationInterface
                             ->addDefaultsIfNotSet()
                             ->children()
                                 ->booleanNode('enabled')->defaultFalse()->end()
-                                ->scalarNode('template')->defaultValue('@FOSUser/Registration/email.txt.twig')->end()
+                                ->scalarNode('template')->defaultValue('FOSUserBundle:Registration:email.txt.twig')->end()
                                 ->arrayNode('from_email')
                                     ->canBeUnset()
                                     ->children()
@@ -141,11 +132,12 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('form')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->scalarNode('type')->defaultValue(Type\RegistrationFormType::class)->end()
+                                ->scalarNode('type')->defaultValue('fos_user_registration')->end()
+                                ->scalarNode('handler')->defaultValue('fos_user.registration.form.handler.default')->end()
                                 ->scalarNode('name')->defaultValue('fos_user_registration_form')->end()
                                 ->arrayNode('validation_groups')
                                     ->prototype('scalar')->end()
-                                    ->defaultValue(['Registration', 'Default'])
+                                    ->defaultValue(array('Registration', 'Default'))
                                 ->end()
                             ->end()
                         ->end()
@@ -162,12 +154,11 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->canBeUnset()
                     ->children()
-                        ->scalarNode('retry_ttl')->defaultValue(7200)->end()
                         ->scalarNode('token_ttl')->defaultValue(86400)->end()
                         ->arrayNode('email')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->scalarNode('template')->defaultValue('@FOSUser/Resetting/email.txt.twig')->end()
+                                ->scalarNode('template')->defaultValue('FOSUserBundle:Resetting:email.txt.twig')->end()
                                 ->arrayNode('from_email')
                                     ->canBeUnset()
                                     ->children()
@@ -180,11 +171,12 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('form')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->scalarNode('type')->defaultValue(Type\ResettingFormType::class)->end()
+                                ->scalarNode('type')->defaultValue('fos_user_resetting')->end()
+                                ->scalarNode('handler')->defaultValue('fos_user.resetting.form.handler.default')->end()
                                 ->scalarNode('name')->defaultValue('fos_user_resetting_form')->end()
                                 ->arrayNode('validation_groups')
                                     ->prototype('scalar')->end()
-                                    ->defaultValue(['ResetPassword', 'Default'])
+                                    ->defaultValue(array('ResetPassword', 'Default'))
                                 ->end()
                             ->end()
                         ->end()
@@ -204,11 +196,12 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('form')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->scalarNode('type')->defaultValue(Type\ChangePasswordFormType::class)->end()
+                                ->scalarNode('type')->defaultValue('fos_user_change_password')->end()
+                                ->scalarNode('handler')->defaultValue('fos_user.change_password.form.handler.default')->end()
                                 ->scalarNode('name')->defaultValue('fos_user_change_password_form')->end()
                                 ->arrayNode('validation_groups')
                                     ->prototype('scalar')->end()
-                                    ->defaultValue(['ChangePassword', 'Default'])
+                                    ->defaultValue(array('ChangePassword', 'Default'))
                                 ->end()
                             ->end()
                         ->end()
@@ -236,6 +229,19 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
+    private function addTemplateSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('template')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('engine')->defaultValue('twig')->end()
+                    ->end()
+                ->end()
+            ->end();
+    }
+
     private function addGroupSection(ArrayNodeDefinition $node)
     {
         $node
@@ -247,13 +253,13 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('group_manager')->defaultValue('fos_user.group_manager.default')->end()
                         ->arrayNode('form')
                             ->addDefaultsIfNotSet()
-                            ->fixXmlConfig('validation_group')
                             ->children()
-                                ->scalarNode('type')->defaultValue(Type\GroupFormType::class)->end()
+                                ->scalarNode('type')->defaultValue('fos_user_group')->end()
+                                ->scalarNode('handler')->defaultValue('fos_user.group.form.handler.default')->end()
                                 ->scalarNode('name')->defaultValue('fos_user_group_form')->end()
                                 ->arrayNode('validation_groups')
                                     ->prototype('scalar')->end()
-                                    ->defaultValue(['Registration', 'Default'])
+                                    ->defaultValue(array('Registration', 'Default'))
                                 ->end()
                             ->end()
                         ->end()

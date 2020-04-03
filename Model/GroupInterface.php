@@ -20,12 +20,12 @@ interface GroupInterface
     /**
      * @param string $role
      *
-     * @return static
+     * @return self
      */
     public function addRole($role);
 
     /**
-     * @return mixed
+     * @return integer
      */
     public function getId();
 
@@ -37,7 +37,7 @@ interface GroupInterface
     /**
      * @param string $role
      *
-     * @return bool
+     * @return boolean
      */
     public function hasRole($role);
 
@@ -49,19 +49,21 @@ interface GroupInterface
     /**
      * @param string $role
      *
-     * @return static
+     * @return self
      */
     public function removeRole($role);
 
     /**
      * @param string $name
      *
-     * @return static
+     * @return self
      */
     public function setName($name);
 
     /**
-     * @return static
+     * @param array $roles
+     *
+     * @return self
      */
     public function setRoles(array $roles);
 }

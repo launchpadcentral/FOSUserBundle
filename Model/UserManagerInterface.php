@@ -35,13 +35,19 @@ interface UserManagerInterface
 
     /**
      * Deletes a user.
+     *
+     * @param UserInterface $user
+     *
+     * @return void
      */
     public function deleteUser(UserInterface $user);
 
     /**
      * Finds one user by the given criteria.
      *
-     * @return UserInterface|null
+     * @param array $criteria
+     *
+     * @return UserInterface
      */
     public function findUserBy(array $criteria);
 
@@ -50,7 +56,7 @@ interface UserManagerInterface
      *
      * @param string $username
      *
-     * @return UserInterface|null
+     * @return UserInterface or null if user does not exist
      */
     public function findUserByUsername($username);
 
@@ -59,7 +65,7 @@ interface UserManagerInterface
      *
      * @param string $email
      *
-     * @return UserInterface|null
+     * @return UserInterface or null if user does not exist
      */
     public function findUserByEmail($email);
 
@@ -68,7 +74,7 @@ interface UserManagerInterface
      *
      * @param string $usernameOrEmail
      *
-     * @return UserInterface|null
+     * @return UserInterface or null if user does not exist
      */
     public function findUserByUsernameOrEmail($usernameOrEmail);
 
@@ -77,7 +83,7 @@ interface UserManagerInterface
      *
      * @param string $token
      *
-     * @return UserInterface|null
+     * @return UserInterface or null if user does not exist
      */
     public function findUserByConfirmationToken($token);
 
@@ -97,23 +103,37 @@ interface UserManagerInterface
 
     /**
      * Reloads a user.
+     *
+     * @param UserInterface $user
+     *
+     * @return void
      */
     public function reloadUser(UserInterface $user);
 
     /**
      * Updates a user.
      *
-     * @param bool $andFlush
+     * @param UserInterface $user
+     *
+     * @return void
      */
-    public function updateUser(UserInterface $user, $andFlush = true);
+    public function updateUser(UserInterface $user);
 
     /**
      * Updates the canonical username and email fields for a user.
+     *
+     * @param UserInterface $user
+     *
+     * @return void
      */
     public function updateCanonicalFields(UserInterface $user);
 
     /**
      * Updates a user password if a plain password is set.
+     *
+     * @param UserInterface $user
+     *
+     * @return void
      */
     public function updatePassword(UserInterface $user);
 }

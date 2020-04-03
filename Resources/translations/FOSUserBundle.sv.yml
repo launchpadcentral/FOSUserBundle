@@ -1,66 +1,72 @@
+# Group
 group:
     edit:
-        submit: 'Uppdatera gruppen'
+        submit: Uppdatera gruppen
     show:
         name: Gruppnamn
     new:
-        submit: 'Skapa grupp'
+        submit: Skapa grupp
     flash:
-        updated: 'Gruppen har uppdaterats.'
-        created: 'Gruppen har skapats.'
-        deleted: 'Gruppen har tagits bort.'
+        updated: Gruppen har uppdaterats
+        created: Gruppen har skapats
+        deleted: Gruppen har tagits bort
+
+# Security
 security:
     login:
         username: Användarnamn
         password: Lösenord
-        remember_me: 'Kom ihåg mig'
-        submit: 'Logga in'
+        remember_me: Kom ihåg mig
+        submit: Logga in
+
+# Profile
 profile:
     show:
-        username: Användarnamn
+        username: Username
         email: Epost
     edit:
         submit: Uppdatera
     flash:
-        updated: 'Profilen har uppdaterats.'
+        updated: Profilen har uppdaterats
+
+# Password change
 change_password:
-    submit: 'Ändra lösenord'
+    submit: Ändra lösenord
     flash:
-        success: 'Lösenordet har ändrats.'
+        success: Lösenordet har ändrats
+
+# Registration
 registration:
-    check_email: 'Ett meddelande har skickats till %email%. Det innehåller en länk som du måste klicka på för att aktivera ditt konto.'
-    confirmed: 'Grattis %username%, ditt konto är nu aktiverat.'
-    back: 'Tillbaka till den ursprungliga sidan.'
+    check_email: Ett meddelande har skickats till %email%. Det innehåller en länk som du måste klicka på för att aktivera ditt konto.
+    confirmed: Grattis %username%, ditt konto är nu aktiverat.
+    back: Tillbaka till den ursprungliga sidan.
     submit: Registrera
     flash:
-        user_created: 'Användaren har skapats.'
+        user_created: Användaren har skapats.
     email:
-        subject: 'Välkommen %username%!'
+        subject: Välkommen %username%!
         message: |
             Hej %username%!
 
             För att aktivera ditt konto - vänligen besök %confirmationUrl%
 
-            Länken kan endast användas en gång för att aktivera ditt konto.
-
             Hälsningar,
             Teamet.
 
+# Password resetting
 resetting:
-    check_email: |
-        Ett meddelande har skickats. Det innehåller en länk som du kan klicka för att återställa ditt lösenord.
-        Obs! Man kan inte återställa sitt lösenord oftare än var %tokenLifetime% timme.
-
-        Om du inte har fått ett meddelande, vänligen kolla din skräpinkorg eller försök igen.
+    password_already_requested: Lösenordet för användaren har redan begärts inom de senaste 24 timmarna.
+    check_email: Ett meddelande har skickats till %email%. Det innehåller en länk som du måste klicka på för att återställa ditt lösenord.
     request:
-        username: 'Användarnamn eller epost-adress'
-        submit: 'Återställ lösenord'
+        invalid_username: Användarnamnet eller epost-adressen "%username%" finns inte.
+        username: Användarnamn eller epost-adress
+        submit: Återställ lösenord
     reset:
-        submit: 'Ändra lösenord'
+        submit: Ändra lösenord
     flash:
-        success: 'Lösenordet har återställts.'
+        success: Lösenordet har återställts
     email:
-        subject: 'Återställ lösenord'
+        subject: Återställ lösenord
         message: |
             Hej %username%!
 
@@ -69,17 +75,20 @@ resetting:
             Hälsningar,
             Teamet.
 
+# Global strings
 layout:
-    logout: 'Logga ut'
-    login: 'Logga in'
+    logout: Logga ut
+    login: Logga in
     register: Registrera
-    logged_in_as: 'Inloggad som %username%'
+    logged_in_as: Inloggad som %username%
+
+# Form field labels
 form:
     group_name: Gruppnamn
     username: Användarnamn
     email: Epost
-    current_password: 'Nuvarande lösenord'
+    current_password: Nuvarande lösenord
     password: Lösenord
     password_confirmation: Verifiering
-    new_password: 'Nytt lösenord'
+    new_password: Nytt lösenord
     new_password_confirmation: Verifiering

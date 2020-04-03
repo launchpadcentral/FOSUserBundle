@@ -1,29 +1,16 @@
 <?php
 
-/*
- * This file is part of the FOSUserBundle package.
- *
- * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace FOS\UserBundle\Tests\Doctrine;
 
 use FOS\UserBundle\Doctrine\UserManager;
 use FOS\UserBundle\Model\User;
-use PHPUnit\Framework\TestCase;
 
-class UserManagerTest extends TestCase
+class UserManagerTest extends \PHPUnit_Framework_TestCase
 {
     const USER_CLASS = 'FOS\UserBundle\Tests\Doctrine\DummyUser';
 
-    /** @var UserManager */
     protected $userManager;
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $om;
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $repository;
 
     public function setUp()
@@ -32,13 +19,11 @@ class UserManagerTest extends TestCase
             $this->markTestSkipped('Doctrine Common has to be installed for this test to run.');
         }
 
-        $passwordUpdater = $this->getMockBuilder('FOS\UserBundle\Util\PasswordUpdaterInterface')->getMock();
-        $fieldsUpdater = $this->getMockBuilder('FOS\UserBundle\Util\CanonicalFieldsUpdater')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $class = $this->getMockBuilder('Doctrine\Common\Persistence\Mapping\ClassMetadata')->getMock();
-        $this->om = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')->getMock();
-        $this->repository = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectRepository')->getMock();
+        $c = $this->getMock('FOS\UserBundle\Util\CanonicalizerInterface');
+        $ef = $this->getMock('Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface');
+        $class = $this->getMock('Doctrine\Common\Persistence\Mapping\ClassMetadata');
+        $this->om = $this->getMock('Doctrine\Common\Persistence\ObjectManager');
+        $this->repository = $this->getMock('Doctrine\Common\Persistence\ObjectRepository');
 
         $this->om->expects($this->any())
             ->method('getRepository')
@@ -52,7 +37,7 @@ class UserManagerTest extends TestCase
             ->method('getName')
             ->will($this->returnValue(static::USER_CLASS));
 
-        $this->userManager = new UserManager($passwordUpdater, $fieldsUpdater, $this->om, static::USER_CLASS);
+        $this->userManager = $this->createUserManager($ef, $c, $this->om, static::USER_CLASS);
     }
 
     public function testDeleteUser()
@@ -66,20 +51,20 @@ class UserManagerTest extends TestCase
 
     public function testGetClass()
     {
-        $this->assertSame(static::USER_CLASS, $this->userManager->getClass());
+        $this->assertEquals(static::USER_CLASS, $this->userManager->getClass());
     }
 
     public function testFindUserBy()
     {
-        $crit = ['foo' => 'bar'];
-        $this->repository->expects($this->once())->method('findOneBy')->with($this->equalTo($crit))->will($this->returnValue([]));
+        $crit = array("foo" => "bar");
+        $this->repository->expects($this->once())->method('findOneBy')->with($this->equalTo($crit))->will($this->returnValue(array()));
 
         $this->userManager->findUserBy($crit);
     }
 
     public function testFindUsers()
     {
-        $this->repository->expects($this->once())->method('findAll')->will($this->returnValue([]));
+        $this->repository->expects($this->once())->method('findAll')->will($this->returnValue(array()));
 
         $this->userManager->findUsers();
     }
@@ -93,9 +78,11 @@ class UserManagerTest extends TestCase
         $this->userManager->updateUser($user);
     }
 
-    /**
-     * @return mixed
-     */
+    protected function createUserManager($encoderFactory, $canonicalizer, $objectManager, $userClass)
+    {
+        return new UserManager($encoderFactory, $canonicalizer, $canonicalizer, $objectManager, $userClass);
+    }
+
     protected function getUser()
     {
         $userClass = static::USER_CLASS;
@@ -106,4 +93,5 @@ class UserManagerTest extends TestCase
 
 class DummyUser extends User
 {
+
 }

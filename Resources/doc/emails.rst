@@ -129,7 +129,7 @@ of referencing the email template below.
                 template:   email/password_resetting.email.twig
         registration:
             confirmation:
-                template:   '@FOSUser/Registration/email.txt.twig'
+                template:   FOSUserBundle:Registration:email.txt.twig
 
 .. code-block:: html+jinja
 
@@ -163,8 +163,8 @@ of referencing the email template below.
     not empty.
 
 You can view the default email templates at
-`@FOSUser/Registration/email.txt.twig` and
-`@FOSUser/Resetting/email.txt.twig`
+`FOSUserBundle:Registration:email.txt.twig` and
+`FOSUserBundle:Resetting:email.txt.twig`
 
 Using A Custom Mailer
 ---------------------

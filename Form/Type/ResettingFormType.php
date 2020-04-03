@@ -12,70 +12,31 @@
 namespace FOS\UserBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class ResettingFormType extends AbstractType
 {
-    /**
-     * @var string
-     */
-    private $class;
-
-    /**
-     * @param string $class The User class name
-     */
-    public function __construct($class)
-    {
-        $this->class = $class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('plainPassword', RepeatedType::class, [
-            'type' => PasswordType::class,
-            'options' => [
-                'translation_domain' => 'FOSUserBundle',
-                'attr' => [
-                    'autocomplete' => 'new-password',
-                ],
-            ],
-            'first_options' => ['label' => 'form.new_password'],
-            'second_options' => ['label' => 'form.new_password_confirmation'],
+        $builder->add('new', 'repeated', array(
+            'type' => 'password',
+            'options' => array('translation_domain' => 'FOSUserBundle'),
+            'first_options' => array('label' => 'form.new_password'),
+            'second_options' => array('label' => 'form.new_password_confirmation'),
             'invalid_message' => 'fos_user.password.mismatch',
-        ]);
+        ));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        $resolver->setDefaults([
-            'data_class' => $this->class,
-            'csrf_token_id' => 'resetting',
-        ]);
+        $resolver->setDefaults(array(
+            'data_class' => 'FOS\UserBundle\Form\Model\ChangePassword',
+            'intention'  => 'resetting',
+        ));
     }
 
-    // BC for SF < 3.0
-
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBlockPrefix()
     {
         return 'fos_user_resetting';
     }

@@ -1,91 +1,94 @@
+# Group
 group:
     edit:
-        submit: 'Actualizează grupul'
+        submit: Actualizează grupul
     show:
-        name: 'Numele grupului'
+        name: Numele grupului
     new:
-        submit: 'Creează grup'
+        submit: Creează grup
     flash:
-        updated: 'Grupul a fost actualizat.'
-        created: 'Grupul a fost creat.'
-        deleted: 'Grupul a fost șters.'
+        updated: Grupul a fost actualizat
+        created: Grupul a fost creat
+        deleted: Grupul a fost șters
 
+# Security
 security:
     login:
-        username: 'Nume de utilizator'
+        username: Nume de utilizator
         password: Parola
-        remember_me: 'Ține-mă minte'
+        remember_me: Ține-mă minte
         submit: Autentificare
 
+# Profile
 profile:
     show:
-        username: 'Numele de utilizator'
+        username: Numele de utilizator
         email: Email
     edit:
         submit: Actualizează
     flash:
-        updated: 'Profilul a fost actualizat.'
+        updated: Profilul a fost actualizat
 
+# Password change
 change_password:
-    submit: 'Schimbă parola'
+    submit: Schimba parola
     flash:
-        success: 'Parola a fost schimbată.'
+        success: Parola a fost schimbata
+
+# Registration
 registration:
-    check_email: |
-        Un email a fost trimis către %email%. Conține un link de activare pe care trebuie să îl accesezi pentru a-ți activa contul.
-    confirmed: 'Felicitări %username%, contul tău a fost activat.'
-    back: 'Înapoi la pagina de la care ai venit.'
-    submit: Înregistrează-te
+    check_email: Un email a fost trimis catre %email%. Contine un link de activare pe care trebuie sa il accesezi pentru a-ti activa contul.
+    confirmed: Felicitari %username%, contul tau a fost confirmat.
+    back: Inapoi la pagina de la care ai venit.
+    submit: Inregistreaza-te
     flash:
-        user_created: 'Utilizatorul a fost creat cu succes.'
+        user_created: Utilizatorul a fost creat cu succes
     email:
-        subject: 'Bine ai venit %username%!'
+        subject: Bine ai venit %username%!
         message: |
             Salut %username%!
 
-            Pentru a-ți activa contul - accesează %confirmationUrl%
-
-            Acest link poate fi folosit numai o singură dată pentru a activa contul.
+            Pentru a-ti valida contul - acceseaza %confirmationUrl%
 
             Toate cele bune,
             Echipa
 
+# Password resetting
 resetting:
-    check_email: |
-        Un email a fost trimis. Conține un link pe care trebuie să îl accesezi pentru a-ți reseta parola.
-        Notă: Poți cere o nouă parolă numai în următoarele %tokenLifetime% ore.
-
-        Daca nu primești email-ul verifica in spam sau mai incearca o dată.
+    password_already_requested: Deja s-a facut o cerere in ultimele 24 de ore pentru parola acestui utilizator.
+    check_email: A fost trimit un email catre %email%. Contine un link pe care trebuie sa il accesezi pentru a-ti reseta parola.
     request:
-        username: 'Numele de utilizator sau adresa de email'
-        submit: 'Resetează parola'
+        invalid_username: Numele de utilizator sau adresa de email "%username%" nu exista.
+        username: Numele de utilizator sau adresa de email
+        submit: Reseteaza parola
     reset:
-        submit: 'Schimbă parola'
+        submit: Schimba parola
     flash:
-        success: 'Parola a fost resetată cu succes.'
+        success: Parola a fost resetata cu succes
     email:
-        subject: 'Resetare parolă'
+        subject: Resetare parola
         message: |
             Salut %username%!
 
-            Pentru a-ți reseta parola - accesează %confirmationUrl%
+            Pentru a-ti reseta parola - acceseaza %confirmationUrl%
 
             Toate cele bune,
             Echipa
 
 # Global strings
 layout:
-    logout: 'Ieșire'
+    logout: Logout
     login: Autentificare
     register: Înregistrare
-    logged_in_as: 'Autentificat ca %username%'
+    logged_in_as: Logat ca %username%
 
+# Form field labels
 form:
-    group_name: 'Numele grupului'
-    username: 'Nume de utilizator'
+    group_name: Numele grupului
+    username: Nume de utilizator
     email: Email
-    current_password: 'Parola curentă'
-    password: Parolă
-    password_confirmation: 'Verificare parolă'
-    new_password: 'Parola nouă'
-    new_password_confirmation: 'Verificare parolă nouă'
+    current_password: Parola curenta
+    password: Parola
+    password_confirmation: Verificare parola
+    new_password: Noua parola
+    new_password_confirmation: Verificare parola

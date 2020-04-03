@@ -16,35 +16,20 @@ namespace FOS\UserBundle\Model;
  */
 abstract class Group implements GroupInterface
 {
-    /**
-     * @var mixed
-     */
     protected $id;
-
-    /**
-     * @var string
-     */
     protected $name;
-
-    /**
-     * @var array
-     */
     protected $roles;
 
-    /**
-     * Group constructor.
-     *
-     * @param string $name
-     * @param array  $roles
-     */
-    public function __construct($name, $roles = [])
+    public function __construct($name, $roles = array())
     {
         $this->name = $name;
         $this->roles = $roles;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $role
+     *
+     * @return Group
      */
     public function addRole($role)
     {
@@ -55,40 +40,33 @@ abstract class Group implements GroupInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return $this->name;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $role
      */
     public function hasRole($role)
     {
         return in_array(strtoupper($role), $this->roles, true);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRoles()
     {
         return $this->roles;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $role
+     *
+     * @return Group
      */
     public function removeRole($role)
     {
@@ -101,7 +79,9 @@ abstract class Group implements GroupInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     *
+     * @return Group
      */
     public function setName($name)
     {
@@ -111,7 +91,9 @@ abstract class Group implements GroupInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param array $roles
+     *
+     * @return Group
      */
     public function setRoles(array $roles)
     {

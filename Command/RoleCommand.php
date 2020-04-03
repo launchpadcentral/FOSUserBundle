@@ -11,43 +11,33 @@
 
 namespace FOS\UserBundle\Command;
 
-use FOS\UserBundle\Util\UserManipulator;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
+use FOS\UserBundle\Util\UserManipulator;
 
 /**
  * @author Lenar Lõhmus <lenar@city.ee>
  */
-abstract class RoleCommand extends Command
+abstract class RoleCommand extends ContainerAwareCommand
 {
-    private $userManipulator;
-
-    public function __construct(UserManipulator $userManipulator)
-    {
-        parent::__construct();
-
-        $this->userManipulator = $userManipulator;
-    }
-
     /**
-     * {@inheritdoc}
+     * @see Command
      */
     protected function configure()
     {
         $this
-            ->setDefinition([
+            ->setDefinition(array(
                 new InputArgument('username', InputArgument::REQUIRED, 'The username'),
                 new InputArgument('role', InputArgument::OPTIONAL, 'The role'),
                 new InputOption('super', null, InputOption::VALUE_NONE, 'Instead specifying role, use this to quickly add the super administrator role'),
-            ]);
+            ));
     }
 
     /**
-     * {@inheritdoc}
+     * @see Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -63,55 +53,55 @@ abstract class RoleCommand extends Command
             throw new \RuntimeException('Not enough arguments.');
         }
 
-        $manipulator = $this->userManipulator;
+        $manipulator = $this->getContainer()->get('fos_user.util.user_manipulator');
         $this->executeRoleCommand($manipulator, $output, $username, $super, $role);
-
-        return 0;
     }
 
     /**
      * @see Command
      *
-     * @param string $username
-     * @param bool   $super
-     * @param string $role
+     * @param UserManipulator $manipulator
+     * @param OutputInterface $output
+     * @param string          $username
+     * @param boolean         $super
+     * @param string          $role
+     *
+     * @return void
      */
     abstract protected function executeRoleCommand(UserManipulator $manipulator, OutputInterface $output, $username, $super, $role);
 
     /**
-     * {@inheritdoc}
+     * @see Command
      */
     protected function interact(InputInterface $input, OutputInterface $output)
     {
-        $questions = [];
-
         if (!$input->getArgument('username')) {
-            $question = new Question('Please choose a username:');
-            $question->setValidator(function ($username) {
-                if (empty($username)) {
-                    throw new \Exception('Username can not be empty');
+            $username = $this->getHelper('dialog')->askAndValidate(
+                $output,
+                'Please choose a username:',
+                function($username) {
+                    if (empty($username)) {
+                        throw new \Exception('Username can not be empty');
+                    }
+
+                    return $username;
                 }
-
-                return $username;
-            });
-            $questions['username'] = $question;
+            );
+            $input->setArgument('username', $username);
         }
-
         if ((true !== $input->getOption('super')) && !$input->getArgument('role')) {
-            $question = new Question('Please choose a role:');
-            $question->setValidator(function ($role) {
-                if (empty($role)) {
-                    throw new \Exception('Role can not be empty');
+            $role = $this->getHelper('dialog')->askAndValidate(
+                $output,
+                'Please choose a role:',
+                function($role) {
+                    if (empty($role)) {
+                        throw new \Exception('Role can not be empty');
+                    }
+
+                    return $role;
                 }
-
-                return $role;
-            });
-            $questions['role'] = $question;
-        }
-
-        foreach ($questions as $name => $question) {
-            $answer = $this->getHelper('question')->ask($input, $output, $question);
-            $input->setArgument($name, $answer);
+            );
+            $input->setArgument('role', $role);
         }
     }
 }
