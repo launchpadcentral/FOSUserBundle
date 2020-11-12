@@ -67,12 +67,13 @@ class Mailer implements MailerInterface
         $subject = $renderedLines[0];
         $body = implode("\n", array_slice($renderedLines, 1));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($fromEmail)
-            ->setTo($toEmail)
-            ->setBody($body);
+        $email = new \SendGrid\Mail\Mail();
+        $email->setFrom($fromEmail);
+        $email->setSubject($subject);
+        $email->addTo($toEmail);
+        $email->addContent("text/html", $body);
 
-        $this->mailer->send($message);
+        $sendgrid = new \SendGrid($this->getParameter('mailer_password'));
+        $response = $sendgrid->send($email);
     }
 }
