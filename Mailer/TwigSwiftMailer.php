@@ -69,17 +69,18 @@ class TwigSwiftMailer implements MailerInterface
         $textBody = $template->renderBlock('body_text', $context);
         $htmlBody = $template->renderBlock('body_html', $context);
 
-        $email = new \SendGrid\Mail\Mail();
-        $email->setFrom($fromEmail);
-        $email->setSubject($subject);
-        $email->addTo($toEmail);
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($fromEmail)
+            ->setTo($toEmail);
+
         if (!empty($htmlBody)) {
-            $email->addContent($htmlBody, 'text/html');
-            $email->addPart($textBody, 'text/plain');
+            $message->setBody($htmlBody, 'text/html')
+                ->addPart($textBody, 'text/plain');
         } else {
-            $email->addContent("text/html", $textBody);
+            $message->setBody($textBody);
         }
-        $sendgrid = new \SendGrid($this->getParameter('mailer_password'));
-        $response = $sendgrid->send($email);
+
+        $this->mailer->send($message);
     }
 }
