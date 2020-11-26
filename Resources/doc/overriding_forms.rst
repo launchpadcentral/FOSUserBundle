@@ -22,7 +22,7 @@ property and its validators.
 
     // src/AppBundle/Entity/User.php
 
-    use FOS\UserBundle\Model\User as BaseUser;
+    use FOS\UserBundle\Entity\User as BaseUser;
     use Doctrine\ORM\Mapping as ORM;
     use Symfony\Component\Validator\Constraints as Assert;
 
@@ -85,18 +85,12 @@ the form type hierarchy and then adds the custom ``name`` field.
 
         public function getParent()
         {
-            return 'FOS\UserBundle\Form\Type\RegistrationFormType';
+            return 'fos_user_registration';
         }
 
-        public function getBlockPrefix()
-        {
-            return 'app_user_registration';
-        }
-
-        // For Symfony 2.x
         public function getName()
         {
-            return $this->getBlockPrefix();
+            return 'app_user_registration';
         }
     }
 
@@ -155,13 +149,163 @@ changing the registration form type in YAML.
         # ...
         registration:
             form:
-                type: AppBundle\Form\RegistrationType
+                type: app_user_registration
 
 Note how the ``alias`` value used in your form type's service configuration tag
 is used in the bundle configuration to tell the FOSUserBundle to use your custom
 form type.
 
+Overriding Form Handlers
+------------------------
+
+There are two ways to override the default functionality provided by the
+FOSUserBundle form handlers. The easiest way is to  override the ``onSuccess``
+method of the handler. The ``onSuccess`` method is called after the form has been
+bound and validated.
+
+The second way is to override the ``process`` method. Overriding
+the ``process`` method should only be necessary when more advanced functionality
+is necessary when binding and validating the form.
+
+Suppose you want to add some functionality that takes place after a successful
+user registration. First you need to create a new class that extends
+``FOS\UserBundle\Form\Handler\RegistrationFormHandler`` and then override the
+protected ``onSuccess`` method.
+
+.. code-block:: php
+
+    <?php
+    // src/AppBundle/Form/Handler/RegistrationFormHandler.php
+
+    namespace AppBundle\Form\Handler;
+
+    use FOS\UserBundle\Form\Handler\RegistrationFormHandler as BaseHandler;
+    use FOS\UserBundle\Model\UserInterface;
+
+    class RegistrationFormHandler extends BaseHandler
+    {
+        protected function onSuccess(UserInterface $user, $confirmation)
+        {
+            // Note: if you plan on modifying the user then do it before calling the
+            // parent method as the parent method will flush the changes
+
+            parent::onSuccess($user, $confirmation);
+
+            // otherwise add your functionality here
+        }
+    }
+
 .. note::
 
-    If you need to add some logic to the processing of the form, you can
-    use a listener :doc:`hooking into the controller </controller_events>`.
+    If you do not call the onSuccess method of the parent class then the default
+    logic that the FOSUserBundle handler normally executes upon a successful
+    submission will not be performed.
+
+You can also choose to override the ``process`` method of the handler. If you choose
+to override the ``process`` method then you will be responsible for binding the form
+data and validating it, as well as implementing the logic required upon a
+successful submission.
+
+.. code-block:: php
+
+    <?php
+    // src/AppBundle/Form/Handler/RegistrationFormHandler.php
+
+    namespace AppBundle\Form\Handler;
+
+    use FOS\UserBundle\Form\Handler\RegistrationFormHandler as BaseHandler;
+
+    class RegistrationFormHandler extends BaseHandler
+    {
+        public function process($confirmation = false)
+        {
+            $user = $this->userManager->createUser();
+            $this->form->setData($user);
+
+            if ('POST' == $this->request->getMethod()) {
+                $this->form->bind($this->request);
+                if ($this->form->isValid()) {
+
+                    // do your custom logic here
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+.. note::
+
+    The process method should return true for a successful submission and false
+    otherwise.
+
+Now that you have created and implemented your custom form handler class, you
+must configure it as a service in the container. Below is an example of
+configuring your form handler as a service:
+
+.. configuration-block::
+
+    .. code-block:: yaml
+
+        # app/config/services.yml
+        services:
+            app.form.handler.registration:
+                class: AppBundle\Form\Handler\RegistrationFormHandler
+                arguments: ["@fos_user.registration.form", "@request", "@fos_user.user_manager", "@fos_user.mailer", "@fos_user.util.token_generator"]
+                scope: request
+                public: false
+
+    .. code-block:: xml
+
+        <!-- app/config/services.xml -->
+        <?xml version="1.0" encoding="UTF-8" ?>
+
+        <container xmlns="http://symfony.com/schema/dic/services"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+            <services>
+
+                <service id="app.form.handler.registration" class="AppBundle\Form\Handler\RegistrationFormHandler" scope="request" public="false">
+                    <argument type="service" id="fos_user.registration.form" />
+                    <argument type="service" id="request" />
+                    <argument type="service" id="fos_user.user_manager" />
+                    <argument type="service" id="fos_user.mailer" />
+                    <argument type="service" id="fos_user.util.token_generator" />
+                </service>
+
+            </services>
+
+        </container>
+
+Here you have injected other services as arguments to the constructor of our class
+because these arguments are required by the base FOSUserBundle form handler class
+which you extended.
+
+Now that your new form handler has been configured in the container, all that is
+left to do is update the FOSUserBundle configuration.
+
+.. code-block:: yaml
+
+    # app/config/config.yml
+    fos_user:
+        # ...
+        registration:
+            form:
+                handler: app.form.handler.registration
+
+Note how the ``id`` of your configured service is used in the bundle configuration
+to tell the FOSUserBundle to use your custom form handler.
+
+At this point, when a user registers on your site your service will be used to
+handle the form submission.
+
+.. note::
+
+    When you overwrite the form processing (be it only for the success logic
+    or for the whole processing), don't forget to save the changes when the
+    form is successful.
+    This is done as part of the default success logic so you need to save it
+    yourself if you don't call the original ``onSuccess`` method.

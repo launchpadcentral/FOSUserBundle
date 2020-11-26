@@ -37,21 +37,25 @@ interface GroupableInterface
      *
      * @param string $name Name of the group
      *
-     * @return bool
+     * @return Boolean
      */
     public function hasGroup($name);
 
     /**
      * Add a group to the user groups.
      *
-     * @return static
+     * @param GroupInterface $group
+     *
+     * @return self
      */
     public function addGroup(GroupInterface $group);
 
     /**
      * Remove a group from the user groups.
      *
-     * @return static
+     * @param GroupInterface $group
+     *
+     * @return self
      */
     public function removeGroup(GroupInterface $group);
 }

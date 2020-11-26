@@ -79,7 +79,7 @@ Next we map our ``Invitation`` entity to our ``User`` with a one-to-one associat
     use Symfony\Component\Validator\Constraints as Assert;
 
     /** @ORM\Entity */
-    class User extends \FOS\UserBundle\Model\User
+    class User extends \FOS\UserBundle\Entity\User
     {
         /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
         protected $id;
@@ -119,20 +119,14 @@ Override the default registration form with your own::
     {
         public function buildForm(FormBuilderInterface $builder, array $options)
         {
-            $builder->add('invitation', 'AppBundle\Form\InvitationFormType');
+            $builder->add('invitation', 'app_invitation_type');
         }
 
         public function getParent()
         {
-            return 'FOS\UserBundle\Form\Type\RegistrationFormType';
+            return 'fos_user_registration';
         }
 
-        public function getBlockPrefix()
-        {
-            return 'app_user_registration';
-        }
-
-        // Not necessary on Symfony 3+
         public function getName()
         {
             return 'app_user_registration';
@@ -148,7 +142,7 @@ Create the invitation field::
 
     use Symfony\Component\Form\AbstractType;
     use Symfony\Component\Form\FormBuilderInterface;
-    use Symfony\Component\OptionsResolver\OptionsResolver;
+    use Symfony\Component\OptionsResolver\OptionsResolverInterface;
     use Doctrine\ORM\EntityRepository;
     use AppBundle\Form\DataTransformer\InvitationToCodeTransformer;
 
@@ -166,7 +160,7 @@ Create the invitation field::
             $builder->addModelTransformer($this->invitationTransformer);
         }
 
-        public function configureOptions(OptionsResolver $resolver)
+        public function setDefaultOptions(OptionsResolverInterface $resolver)
         {
             $resolver->setDefaults(array(
                 'class' => 'AppBundle\Entity\Invitation',
@@ -176,15 +170,9 @@ Create the invitation field::
 
         public function getParent()
         {
-            return 'Symfony\Component\Form\Extension\Core\Type\TextType';
+            return 'text';
         }
 
-        public function getBlockPrefix()
-        {
-            return 'app_invitation_type';
-        }
-
-        // Not necessary on Symfony 3+
         public function getName()
         {
             return 'app_invitation_type';
@@ -194,7 +182,7 @@ Create the invitation field::
 Create the custom data transformer::
 
     <?php
-    // src/AppBundle/Form/DataTransformer/InvitationToCodeTransformer.php
+    // src/AppBundle/Form/InvitationToCodeTransformer.php
 
     namespace AppBundle\Form\DataTransformer;
 
@@ -247,11 +235,12 @@ Create the custom data transformer::
 
             return $this->entityManager
                 ->createQuery($dql)
-                ->setParameter('code', $value)
+                ->setParameter('code', $code)
                 ->setMaxResults(1)
                 ->getOneOrNullResult();
         }
     }
+
 
 Register your custom form type in the container:
 
@@ -317,6 +306,6 @@ Next overwrite the default ``RegistrationFormType`` with the one just created :
     fos_user:
         registration:
             form:
-                type: AppBundle\Form\RegistrationFormType
+                type: app_user_registration
 
 You are done, go to your registration form to see the result.

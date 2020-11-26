@@ -1,28 +1,15 @@
 <?php
 
-/*
- * This file is part of the FOSUserBundle package.
- *
- * (c) FriendsOfSymfony <http://friendsofsymfony.github.com/>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace FOS\UserBundle\Tests\Routing;
 
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\Loader\XmlFileLoader;
 use Symfony\Component\Routing\RouteCollection;
 
-class RoutingTest extends TestCase
+class RoutingTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider loadRoutingProvider
-     *
-     * @param string $routeName
-     * @param string $path
      */
     public function testLoadRouting($routeName, $path, array $methods)
     {
@@ -47,40 +34,37 @@ class RoutingTest extends TestCase
 
         $route = $collection->get($routeName);
         $this->assertNotNull($route, sprintf('The route "%s" should exists', $routeName));
-        $this->assertSame($path, $route->getPath());
-        $this->assertSame($methods, $route->getMethods());
+        $this->assertEquals($path, $route->getPath());
+        $this->assertEquals($methods, $route->getMethods());
     }
 
-    /**
-     * @return array
-     */
     public function loadRoutingProvider()
     {
-        return [
-            ['fos_user_change_password', '/change-password', ['GET', 'POST']],
+        return array(
+            array('fos_user_change_password', '/change-password', array('GET', 'POST')),
 
-            ['fos_user_group_list', '/group/list', ['GET']],
-            ['fos_user_group_new', '/group/new', ['GET', 'POST']],
-            ['fos_user_group_show', '/group/{groupName}', ['GET']],
-            ['fos_user_group_edit', '/group/{groupName}/edit', ['GET', 'POST']],
-            ['fos_user_group_delete', '/group/{groupName}/delete', ['GET']],
+            array('fos_user_group_list', '/group/list', array('GET')),
+            array('fos_user_group_new', '/group/new', array('GET', 'POST')),
+            array('fos_user_group_show', '/group/{groupname}', array('GET')),
+            array('fos_user_group_edit', '/group/{groupname}/edit', array('GET', 'POST')),
+            array('fos_user_group_delete', '/group/{groupname}/delete', array('GET')),
 
-            ['fos_user_profile_show', '/profile/', ['GET']],
-            ['fos_user_profile_edit', '/profile/edit', ['GET', 'POST']],
+            array('fos_user_profile_show', '/profile/', array('GET')),
+            array('fos_user_profile_edit', '/profile/edit', array('GET', 'POST')),
 
-            ['fos_user_registration_register', '/register/', ['GET', 'POST']],
-            ['fos_user_registration_check_email', '/register/check-email', ['GET']],
-            ['fos_user_registration_confirm', '/register/confirm/{token}', ['GET']],
-            ['fos_user_registration_confirmed', '/register/confirmed', ['GET']],
+            array('fos_user_registration_register', '/register/', array('GET', 'POST')),
+            array('fos_user_registration_check_email', '/register/check-email', array('GET')),
+            array('fos_user_registration_confirm', '/register/confirm/{token}', array('GET')),
+            array('fos_user_registration_confirmed', '/register/confirmed', array('GET')),
 
-            ['fos_user_resetting_request', '/resetting/request', ['GET']],
-            ['fos_user_resetting_send_email', '/resetting/send-email', ['POST']],
-            ['fos_user_resetting_check_email', '/resetting/check-email', ['GET']],
-            ['fos_user_resetting_reset', '/resetting/reset/{token}', ['GET', 'POST']],
+            array('fos_user_resetting_request', '/resetting/request', array('GET')),
+            array('fos_user_resetting_send_email', '/resetting/send-email', array('POST')),
+            array('fos_user_resetting_check_email', '/resetting/check-email', array('GET')),
+            array('fos_user_resetting_reset', '/resetting/reset/{token}', array('GET', 'POST')),
 
-            ['fos_user_security_login', '/login', ['GET', 'POST']],
-            ['fos_user_security_check', '/login_check', ['POST']],
-            ['fos_user_security_logout', '/logout', ['GET', 'POST']],
-        ];
+            array('fos_user_security_login', '/login', array('GET', 'POST')),
+            array('fos_user_security_check', '/login_check', array('POST')),
+            array('fos_user_security_logout', '/logout', array('GET')),
+        );
     }
 }

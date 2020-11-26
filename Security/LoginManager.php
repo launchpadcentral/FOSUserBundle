@@ -12,11 +12,11 @@
 namespace FOS\UserBundle\Security;
 
 use FOS\UserBundle\Model\UserInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
+use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
 use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface;
 
@@ -27,72 +27,47 @@ use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterfa
  */
 class LoginManager implements LoginManagerInterface
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * @var UserCheckerInterface
-     */
+    private $securityContext;
     private $userChecker;
-
-    /**
-     * @var SessionAuthenticationStrategyInterface
-     */
     private $sessionStrategy;
+    private $container;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * @var RememberMeServicesInterface
-     */
-    private $rememberMeService;
-
-    /**
-     * LoginManager constructor.
-     */
-    public function __construct(TokenStorageInterface $tokenStorage, UserCheckerInterface $userChecker,
+    public function __construct(SecurityContextInterface $context, UserCheckerInterface $userChecker,
                                 SessionAuthenticationStrategyInterface $sessionStrategy,
-                                RequestStack $requestStack,
-                                RememberMeServicesInterface $rememberMeService = null
-    ) {
-        $this->tokenStorage = $tokenStorage;
+                                ContainerInterface $container)
+    {
+        $this->securityContext = $context;
         $this->userChecker = $userChecker;
         $this->sessionStrategy = $sessionStrategy;
-        $this->requestStack = $requestStack;
-        $this->rememberMeService = $rememberMeService;
+        $this->container = $container;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    final public function logInUser($firewallName, UserInterface $user, Response $response = null)
+    final public function loginUser($firewallName, UserInterface $user, Response $response = null)
     {
-        $this->userChecker->checkPreAuth($user);
+        $this->userChecker->checkPostAuth($user);
 
         $token = $this->createToken($firewallName, $user);
-        $request = $this->requestStack->getCurrentRequest();
 
-        if (null !== $request) {
-            $this->sessionStrategy->onAuthentication($request, $token);
+        if ($this->container->isScopeActive('request')) {
+            $this->sessionStrategy->onAuthentication($this->container->get('request'), $token);
 
-            if (null !== $response && null !== $this->rememberMeService) {
-                $this->rememberMeService->loginSuccess($request, $response, $token);
+            if (null !== $response) {
+                $rememberMeServices = null;
+                if ($this->container->has('security.authentication.rememberme.services.persistent.'.$firewallName)) {
+                    $rememberMeServices = $this->container->get('security.authentication.rememberme.services.persistent.'.$firewallName);
+                } elseif ($this->container->has('security.authentication.rememberme.services.simplehash.'.$firewallName)) {
+                    $rememberMeServices = $this->container->get('security.authentication.rememberme.services.simplehash.'.$firewallName);
+                }
+
+                if ($rememberMeServices instanceof RememberMeServicesInterface) {
+                    $rememberMeServices->loginSuccess($this->container->get('request'), $response, $token);
+                }
             }
         }
 
-        $this->tokenStorage->setToken($token);
+        $this->securityContext->setToken($token);
     }
 
-    /**
-     * @param string $firewall
-     *
-     * @return UsernamePasswordToken
-     */
     protected function createToken($firewall, UserInterface $user)
     {
         return new UsernamePasswordToken($user, null, $firewall, $user->getRoles());

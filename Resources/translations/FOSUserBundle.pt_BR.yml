@@ -1,20 +1,30 @@
+# Group
 group:
     edit:
-        submit: 'Atualizar Grupo'
+        submit: Atualizar Grupo
     show:
-        name: 'Nome do Grupo'
+        name: Nome do Grupo
     new:
-        submit: 'Criar Grupo'
+        submit: Criar Grupo
     flash:
-        updated: 'O grupo foi atualizado.'
-        created: 'O grupo foi criado.'
-        deleted: 'O grupo foi removido.'
+        updated: O grupo foi atualizado
+        created: O grupo foi criado
+        deleted: O grupo foi removido
+
+# Security
+"Bad credentials": Usuário ou senha inválida
+
+# Since Symfony 2.6 the error message has changed
+"Bad credentials.": Usuário ou senha inválida.
+
 security:
     login:
         username: Usuário
         password: Senha
-        remember_me: 'Permanecer conectado'
+        remember_me: Permanecer conectado
         submit: Entrar
+
+# Profile
 profile:
     show:
         username: Usuário
@@ -22,20 +32,24 @@ profile:
     edit:
         submit: Atualizar
     flash:
-        updated: 'O perfil foi atualizado.'
+        updated: O perfil foi atualizado.
+
+# Password change
 change_password:
-    submit: 'Alterar senha'
+    submit: Alterar senha
     flash:
-        success: 'A senha foi alterada.'
+        success: A senha foi alterada.
+
+# Registration
 registration:
-    check_email: 'Um email foi enviado para o endereço %email%. Para ativar a sua conta, clique no link na mensagem.'
-    confirmed: 'Parabéns, %username%. A sua conta foi ativada.'
-    back: 'Retornar para a página de origem.'
+    check_email: Um email foi enviado para o endereço %email%. Para para ativar a sua conta, clique no link na mensagem.
+    confirmed: Parabéns, %username%. A sua conta foi ativada.
+    back: Retornar para a página de origem.
     submit: Registrar
     flash:
-        user_created: 'O usuário foi criado com sucesso.'
+        user_created: O usuário foi criado com sucesso.
     email:
-        subject: 'Bem-vindo(a), %username%!'
+        subject: Bem-vindo(a), %username%!
         message: |
             Olá, %username%!
 
@@ -44,21 +58,20 @@ registration:
             Atenciosamente,
             a Equipe.
 
+# Password resetting
 resetting:
-    check_email: |
-            Um email foi enviado. Ele contem um link que deve ser acessado para resetar sua senha.
-            Nota: Você apenas poderá requisitar uma nova senha dentro de %tokenLifetime% horas.
-
-            Se você não receber sua senha, cheque sua pasta de spam ou tente novamente.
+    password_already_requested: Este usuário já solicitou uma senha nas últimas 24 horas.
+    check_email: Foi enviado um email para %email%. Para recuperar a sua senha, clique no link da mensagem.
     request:
-        username: 'Usuário ou email'
-        submit: 'Recuperar senha'
+        invalid_username: O usuário ou endereço de email "%username%" não está cadastrado.
+        username: Usuário ou email
+        submit: Recuperar senha
     reset:
-        submit: 'Alterar senha'
+        submit: Alterar senha
     flash:
-        success: 'A senha foi redefinida com sucesso.'
+        success: A senha foi redefinida com sucesso.
     email:
-        subject: 'Redefinir senha'
+        subject: Redefinir senha
         message: |
             Olá, %username%!
 
@@ -67,17 +80,20 @@ resetting:
             Atenciosamente,
             a Equipe.
 
+# Global strings
 layout:
     logout: Sair
     login: Entrar
-    register: Registrar
-    logged_in_as: 'Conectado como %username%'
+    register: Registar
+    logged_in_as: Conectado como %username%
+
+# Form field labels
 form:
-    group_name: 'Nome do Grupo'
+    group_name: Nome do Grupo
     username: Usuário
     email: Email
-    current_password: 'Senha atual'
+    current_password: Senha atual
     password: Senha
-    password_confirmation: 'Repita a senha'
-    new_password: 'Nova senha'
-    new_password_confirmation: 'Repita a nova senha'
+    password_confirmation: Repita a senha
+    new_password: Nova senha
+    new_password_confirmation: Repita a senha

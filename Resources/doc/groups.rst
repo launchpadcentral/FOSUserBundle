@@ -38,13 +38,13 @@ Below is an example configuration for enabling groups support.
         <container xmlns="http://symfony.com/schema/dic/services"
             xmlns:fos-user="http://friendsofsymfony.github.io/schema/dic/user"
         >
-            <fos_user:config
-                db-driver="orm"
-                firewall-name="main"
-                user-class="AppBundle\Entity\User"
-            >
-                <fos_user:group group-class="AppBundle\Entity\Group" />
-            </fos_user:config>
+	    <fos_user:config
+		db-driver="orm"
+		firewall-name="main"
+		user-class="AppBundle\Entity\User"
+	    >
+		<fos_user:group group-class="AppBundle\Entity\Group" />
+	    </fos_user:config>
         </container>
 
 The Group class
@@ -65,7 +65,7 @@ a) ORM Group class implementation
 
         namespace AppBundle\Entity;
 
-        use FOS\UserBundle\Model\Group as BaseGroup;
+        use FOS\UserBundle\Entity\Group as BaseGroup;
         use Doctrine\ORM\Mapping as ORM;
 
         /**
@@ -108,7 +108,7 @@ b) MongoDB Group class implementation
 
     namespace AppBundle\Document;
 
-    use FOS\UserBundle\Model\Group as BaseGroup;
+    use FOS\UserBundle\Document\Group as BaseGroup;
     use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
     /**
@@ -132,7 +132,7 @@ c) CouchDB Group class implementation
 
     namespace AppBundle\CouchDocument;
 
-    use FOS\UserBundle\Model\Group as BaseGroup;
+    use FOS\UserBundle\Document\Group as BaseGroup;
     use Doctrine\ODM\CouchDB\Mapping\Annotations as CouchDB;
 
     /**
@@ -163,7 +163,8 @@ a) ORM User-Group mapping
 
         namespace AppBundle\Entity;
 
-        use FOS\UserBundle\Model\User as BaseUser;
+        use FOS\UserBundle\Entity\User as BaseUser;
+        use Doctrine\ORM\Mapping as ORM;
 
         /**
          * @ORM\Entity
@@ -245,7 +246,7 @@ b) MongoDB User-Group mapping
 
     namespace AppBundle\Document;
 
-    use FOS\UserBundle\Model\User as BaseUser;
+    use FOS\UserBundle\Document\User as BaseUser;
     use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
     /**
@@ -272,7 +273,7 @@ c) CouchDB User-Group mapping
 
     namespace AppBundle\CouchDocument;
 
-    use FOS\UserBundle\Model\User as BaseUser;
+    use FOS\UserBundle\Document\User as BaseUser;
     use Doctrine\ODM\CouchDB\Mapping\Annotations as CouchDB;
 
     /**

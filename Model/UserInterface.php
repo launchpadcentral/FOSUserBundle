@@ -11,31 +11,23 @@
 
 namespace FOS\UserBundle\Model;
 
-use Symfony\Component\Security\Core\User\EquatableInterface;
-use Symfony\Component\Security\Core\User\UserInterface as BaseUserInterface;
+use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 /**
- * @internal Only for back compatibility. Remove / merge when dropping support for Symfony 4
+ * @author Thibault Duplessis <thibault.duplessis@gmail.com>
+ * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-interface FosUserInterface extends \Serializable
+interface UserInterface extends AdvancedUserInterface, \Serializable
 {
     const ROLE_DEFAULT = 'ROLE_USER';
-
     const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
-
-    /**
-     * Returns the user unique id.
-     *
-     * @return mixed
-     */
-    public function getId();
 
     /**
      * Sets the username.
      *
      * @param string $username
      *
-     * @return static
+     * @return self
      */
     public function setUsername($username);
 
@@ -51,16 +43,9 @@ interface FosUserInterface extends \Serializable
      *
      * @param string $usernameCanonical
      *
-     * @return static
+     * @return self
      */
     public function setUsernameCanonical($usernameCanonical);
-
-    /**
-     * @param string|null $salt
-     *
-     * @return static
-     */
-    public function setSalt($salt);
 
     /**
      * Gets email.
@@ -74,7 +59,7 @@ interface FosUserInterface extends \Serializable
      *
      * @param string $email
      *
-     * @return static
+     * @return self
      */
     public function setEmail($email);
 
@@ -90,7 +75,7 @@ interface FosUserInterface extends \Serializable
      *
      * @param string $emailCanonical
      *
-     * @return static
+     * @return self
      */
     public function setEmailCanonical($emailCanonical);
 
@@ -106,7 +91,7 @@ interface FosUserInterface extends \Serializable
      *
      * @param string $password
      *
-     * @return static
+     * @return self
      */
     public function setPlainPassword($password);
 
@@ -115,83 +100,107 @@ interface FosUserInterface extends \Serializable
      *
      * @param string $password
      *
-     * @return static
+     * @return self
      */
     public function setPassword($password);
 
     /**
      * Tells if the the given user has the super admin role.
      *
-     * @return bool
+     * @return boolean
      */
     public function isSuperAdmin();
 
     /**
-     * @param bool $boolean
+     * Tells if the the given user is this user.
      *
-     * @return static
+     * Useful when not hydrating all fields.
+     *
+     * @param null|UserInterface $user
+     *
+     * @return boolean
+     */
+    public function isUser(UserInterface $user = null);
+
+    /**
+     * @param boolean $boolean
+     *
+     * @return self
      */
     public function setEnabled($boolean);
 
     /**
-     * Sets the super admin status.
+     * Sets the locking status of the user.
      *
-     * @param bool $boolean
+     * @param boolean $boolean
      *
-     * @return static
+     * @return self
+     */
+    public function setLocked($boolean);
+
+    /**
+     * Sets the super admin status
+     *
+     * @param boolean $boolean
+     *
+     * @return self
      */
     public function setSuperAdmin($boolean);
 
     /**
      * Gets the confirmation token.
      *
-     * @return string|null
+     * @return string
      */
     public function getConfirmationToken();
 
     /**
-     * Sets the confirmation token.
+     * Sets the confirmation token
      *
-     * @param string|null $confirmationToken
+     * @param string $confirmationToken
      *
-     * @return static
+     * @return self
      */
     public function setConfirmationToken($confirmationToken);
 
     /**
      * Sets the timestamp that the user requested a password reset.
      *
-     * @return static
+     * @param null|\DateTime $date
+     *
+     * @return self
      */
     public function setPasswordRequestedAt(\DateTime $date = null);
 
     /**
      * Checks whether the password reset request has expired.
      *
-     * @param int $ttl Requests older than this many seconds will be considered expired
+     * @param integer $ttl Requests older than this many seconds will be considered expired
      *
-     * @return bool
+     * @return boolean true if the user's password request is non expired, false otherwise
      */
     public function isPasswordRequestNonExpired($ttl);
 
     /**
-     * Sets the last login time.
+     * Sets the last login time
      *
-     * @return static
+     * @param \DateTime $time
+     *
+     * @return self
      */
-    public function setLastLogin(\DateTime $time = null);
+    public function setLastLogin(\DateTime $time=null);
 
     /**
      * Never use this to check if this user has access to anything!
      *
-     * Use the AuthorizationChecker, or an implementation of AccessDecisionManager
+     * Use the SecurityContext, or an implementation of AccessDecisionManager
      * instead, e.g.
      *
-     *         $authorizationChecker->isGranted('ROLE_USER');
+     *         $securityContext->isGranted('ROLE_USER');
      *
      * @param string $role
      *
-     * @return bool
+     * @return boolean
      */
     public function hasRole($role);
 
@@ -200,7 +209,9 @@ interface FosUserInterface extends \Serializable
      *
      * This overwrites any previous roles.
      *
-     * @return static
+     * @param array $roles
+     *
+     * @return self
      */
     public function setRoles(array $roles);
 
@@ -209,7 +220,7 @@ interface FosUserInterface extends \Serializable
      *
      * @param string $role
      *
-     * @return static
+     * @return self
      */
     public function addRole($role);
 
@@ -218,77 +229,7 @@ interface FosUserInterface extends \Serializable
      *
      * @param string $role
      *
-     * @return static
+     * @return self
      */
     public function removeRole($role);
-
-    /**
-     * Checks whether the user's account has expired.
-     *
-     * Internally, if this method returns false, the authentication system
-     * will throw an AccountExpiredException and prevent login.
-     *
-     * @return bool true if the user's account is non expired, false otherwise
-     *
-     * @see AccountExpiredException
-     */
-    public function isAccountNonExpired();
-
-    /**
-     * Checks whether the user is locked.
-     *
-     * Internally, if this method returns false, the authentication system
-     * will throw a LockedException and prevent login.
-     *
-     * @return bool true if the user is not locked, false otherwise
-     *
-     * @see LockedException
-     */
-    public function isAccountNonLocked();
-
-    /**
-     * Checks whether the user's credentials (password) has expired.
-     *
-     * Internally, if this method returns false, the authentication system
-     * will throw a CredentialsExpiredException and prevent login.
-     *
-     * @return bool true if the user's credentials are non expired, false otherwise
-     *
-     * @see CredentialsExpiredException
-     */
-    public function isCredentialsNonExpired();
-
-    /**
-     * Checks whether the user is enabled.
-     *
-     * Internally, if this method returns false, the authentication system
-     * will throw a DisabledException and prevent login.
-     *
-     * @return bool true if the user is enabled, false otherwise
-     *
-     * @see DisabledException
-     */
-    public function isEnabled();
-}
-
-// This is required to support apps that explicitly check if a user is an instance of AdvancedUserInterface
-if (interface_exists('\Symfony\Component\Security\Core\User\AdvancedUserInterface')) {
-    /**
-     * @author Thibault Duplessis <thibault.duplessis@gmail.com>
-     * @author Johannes M. Schmitt <schmittjoh@gmail.com>
-     *
-     * @deprecated since Symfony 4.1. Remove in Nov 2023 (End of support for security fixes SF 4.4)
-     */
-    interface UserInterface extends FosUserInterface, \Symfony\Component\Security\Core\User\AdvancedUserInterface
-    {
-    }
-} else {
-    /**
-     * @author Thibault Duplessis <thibault.duplessis@gmail.com>
-     * @author Johannes M. Schmitt <schmittjoh@gmail.com>
-     * @author Julian Finkler <julian@developer-heaven.de>
-     */
-    interface UserInterface extends FosUserInterface, BaseUserInterface, EquatableInterface
-    {
-    }
 }
